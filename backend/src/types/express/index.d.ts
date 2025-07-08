@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { tokenPayloadSchema } from 'schemas/token.schema';
+import { tokenPayloadSchema } from 'core/middlewares/schemas/token.schema';
 import { JwtPayload } from 'jsonwebtoken';
 
 declare global {

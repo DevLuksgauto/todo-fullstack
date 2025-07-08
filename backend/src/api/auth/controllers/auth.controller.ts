@@ -3,13 +3,13 @@ import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import { prisma } from '../../../lib/prisma';
 import { config } from '../../../core/config';
-import { signupSchema } from '../../../schemas/userSignup.schema';
-import { loginSchema } from 'schemas/userLogin.schema';
+import { signupSchema } from '../schemas/userSignup.schema';
+import { loginSchema } from '../schemas/userLogin.schema';
 import { userResponseSchema } from 'schemas/userResponse.schema';
 import formatError from 'core/utils/formatError';
 
 export const authController = {
-    signupSchema: async (req: Request, res: Response) => {
+    signup: async (req: Request, res: Response) => {
         try {
             const { name, email, password } = signupSchema.parse(req.body);
 

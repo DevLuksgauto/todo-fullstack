@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import { prisma } from '../../../lib/prisma';
-import { taskCreateSchema } from 'schemas/taskCreate.schema';
-import { taskResponseSchema } from 'schemas/taskResponseSchema';
+import { taskCreateSchema } from 'api/task/schemas/taskCreate.schema';
+import { taskResponseSchema } from 'api/task/schemas/taskResponseSchema';
 import formatError from 'core/utils/formatError';
 
 export const taskController = {

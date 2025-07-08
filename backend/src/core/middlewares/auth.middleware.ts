@@ -1,10 +1,8 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import { config } from '../config';
-import { tokenPayloadSchema } from 'schemas/token.schema';
+import { tokenPayloadSchema } from 'core/middlewares/schemas/token.schema';
 import { ZodError } from 'zod';
-
-const secret = config.secret_key;
 
 export function verifyToken(req: Request, res: Response, next: NextFunction): void {
     const authHeader = req.headers.authorization;

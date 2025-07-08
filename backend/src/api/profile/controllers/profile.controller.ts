@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import { prisma } from '../../../lib/prisma';
 import { userResponseSchema } from 'schemas/userResponse.schema';
-import { userUpdateSchema } from 'schemas/userUpdate.schema';
+import { userUpdateSchema } from 'api/profile/schema/userUpdate.schema';
 import formatError from 'core/utils/formatError';
 
 export const profileController = {

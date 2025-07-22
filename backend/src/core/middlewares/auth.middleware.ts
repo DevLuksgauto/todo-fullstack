@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
-import { config } from '../config';
-import { tokenPayloadSchema } from 'core/middlewares/schemas/token.schema';
+import { config } from '@core/config';
+import { tokenPayloadSchema } from '@core/middlewares/schemas/token.schema';
 import { ZodError } from 'zod';
 
 export function verifyToken(req: Request, res: Response, next: NextFunction): void {

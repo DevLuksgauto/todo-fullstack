@@ -1,9 +1,12 @@
 import { Router } from 'express';
-import { signup, login } from './controllers/auth.controller';
+import { authController } from './controllers/auth.controller';
+import { verifyToken } from '@core/middlewares/auth.middleware';
 
-const router = Router();
+const authRouter = Router();
 
-router.post('/signup', signup);
-router.post('/login', login);
+authRouter.post('/signup', authController.signup);
+authRouter.post('/login', authController.login);
 
-export default router;
+// router.get('/profile', verifyToken, authController.getProfile)
+
+export default authRouter;

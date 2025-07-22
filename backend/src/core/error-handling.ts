@@ -1,20 +1,41 @@
 import { Request, Response, NextFunction } from 'express';
 import { ZodError } from 'zod';
-import { config } from './config';
+import { config } from '@core/config';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
+import { AppError } from './types';
 
 export const appsErrors = {
-    notFound: (message: string) => ({
+    notFound: (message: string):AppError => ({
         message,
         statusCode: 404,
         isOperational: true
     }),
-    unauthorized: (message: string) => ({
+    unauthorized: (message: string): AppError => ({
         message,
         statusCode: 401,
         isOperational: true
+    }),
+    badRequest: (message: string): AppError => ({
+        message,
+        statusCode: 400,
+        isOperational: true
+    }),
+    conflict: (message: string): AppError => ({
+        message,
+        statusCode: 409,
+        isOperational: true
     })
 };
+
+const isAppError = (err: unknown): err is AppError => {
+    return (
+        typeof err === 'object' &&
+        err !== null &&
+        'statusCode' in err &&
+        'isOperational' in err
+    );
+}
+
 
 export const errorHandler = (
     err: unknown,
@@ -24,7 +45,7 @@ export const errorHandler = (
 ) => {
     const errorResponse = {
         success: false,
-        error: err instanceof Error ? err.message : 'Something went wrong',
+        error: err instanceof Error ? err.message : 'Internal server error',
         ...(config.node_env === 'development' && {
             stack: err instanceof Error ? err.stack : undefined,
             details: err instanceof ZodError ? err.flatten() : null
@@ -33,21 +54,23 @@ export const errorHandler = (
 
     let statusCode = 500;
 
-    if (err && typeof err === 'object' && 'statusCode' in err) {
-        statusCode = Number(statusCode);
+    if (isAppError(err)) {
+        statusCode = err.statusCode;
     } else if (err instanceof ZodError) {
         statusCode = 400;
     } else if (err instanceof PrismaClientKnownRequestError && err.code === 'P2002') {
-        statusCode = 409
+        statusCode = 409;
+        errorResponse.error = 'Duplicate entry detected';
     }
 
     if (config.node_env !== 'production') {
-        console.error('Erro:', {
+        console.error('[Error Handler]:', {
             path: req.path,
             method: req.method,
+            statusCode,
             error: errorResponse.error
         });
     }
 
-    res.status(statusCode).json(errorResponse);
+    return res.status(statusCode).json(errorResponse);
 }

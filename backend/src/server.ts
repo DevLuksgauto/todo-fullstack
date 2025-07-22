@@ -1,14 +1,20 @@
 import express from 'express';
 import cors from 'cors';
-import { config } from './core/config';
+import { config } from '@core/config';
 import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
-import { errorHandler } from 'core/error-handling';
+import { errorHandler } from './core/error-handling';
 import authRoutes from './api/auth/routes';
 import taskRoutes from './api/task/routes'
-import { prisma } from 'lib/prisma';
+import { prisma } from './lib/prisma';
+import profileRouter from '@api/profile/routes';
 
 export const app = express();
+
+app.use((req, res, next) => {
+    console.log(`[${new Date().toISOString()}] ${req.method} ${req.path}`);
+    next()
+})
 
 // Middlewares
 app.use(helmet());
@@ -22,7 +28,8 @@ app.use('/api', limiter);
 
 // Routes
 app.use('/api/auth', authRoutes);
-app.use('api/task', taskRoutes)
+app.use('api/task', taskRoutes);
+app.use('/api/profile', profileRouter);
 
 // Health Check
 app.get('/api/health', (req, res) => {

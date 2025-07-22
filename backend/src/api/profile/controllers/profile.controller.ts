@@ -1,56 +1,39 @@
 import { Request, Response } from 'express';
-import { prisma } from '../../../lib/prisma';
-import { userResponseSchema } from 'schemas/userResponse.schema';
-import { userUpdateSchema } from 'api/profile/schema/userUpdate.schema';
-import formatError from 'core/utils/formatError';
+import { userUpdateSchema } from '@api/profile/schema/userUpdate.schema';
+import { profileService } from '../services/profile.service';
+import formatError from '@core/utils/formatError';
 
 export const profileController = {
     getProfile: async (req: Request, res: Response) => {
         try {
-            const user = await prisma.user.findUnique({
-                where: { id: req.user!.userId },
-                select: {
-                    id: true,
-                    name: true,
-                    email: true,
-                    createdAt: true
-                }
-            });
-            if (!user) {
-                res.status(404).json({ error: 'User not found' });
-                return;
-            }
-
-            const response = userResponseSchema.parse(user);
-            res.json(response);
-            return;
+            const user = await profileService.getProfile(req.user?.userId);
+            return res.json(user);
         } catch (error) {
             console.error('Error fetching profile:', error);
-            res.status(500).json({ error: 'Internal server error' });
-            return;
+            return res.status(500).json({ error: 'Internal server error' });
         }
     },
 
     updateProfile: async (req: Request, res: Response) => {
         try {
             const updateData = userUpdateSchema.parse(req.body);
-
-            const updateUser = await prisma.user.update({
-                where: { id: req.user!.userId },
-                data: updateData,
-                select: {
-                    id: true,
-                    name: true,
-                    email: true,
-                    createdAt: true
-                }
-            });
-            res.json(userResponseSchema.parse(updateUser));
-            return;
+            const userUpdate = await profileService.updateProfie(req.user?.userId, updateData);
+            return res.json(userUpdate);
         } catch (error) {
             console.error('Error updating profile', error);
-            res.status(400).json(formatError(error, 'Validation failed'));
-            return;
+            return res.status(400).json(formatError(error, 'Validation failed'));
+        }
+    },
+
+    deleteProfile: async (req: Request, res: Response) => {
+        try {
+            await profileService.deleteProfile(req.user!.userId);
+            return res.status(204).send();
+        } catch (error) {
+            console.error('Error deleting profile:', error);
+            return res.status(500).json({
+                error: 'Failed to delete profile'
+            });
         }
     }
 };
